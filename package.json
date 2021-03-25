@@ -1,0 +1,25 @@
+{
+  "name": "fe_db",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fccourses/fe_db.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fccourses/fe_db/issues"
+  },
+  "homepage": "https://github.com/fccourses/fe_db#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "lodash": "^4.17.21",
+    "pg": "^8.5.1"
+  }
+}
