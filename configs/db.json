@@ -2,6 +2,6 @@
   "user": "postgres",
   "password": "5335",
   "host": "localhost",
-  "port": 5432,
-  "database": "fe_db"
+  "port": 5433,
+  "database": "fe_test"
 }

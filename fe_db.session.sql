@@ -330,7 +330,7 @@ CREATE VIEW "users_with_orders_amount" AS (
   SELECT users.*,
     count(orders.id) AS "order_amount"
   FROM users
-    JOIN orders ON users.id = orders."userId"
+    JOIN orders SchemasON users.id = orders."userId"
   GROUP BY users.id,
     email
 );
@@ -377,8 +377,44 @@ CREATE VIEW "users_list" AS (
 );
 --
 --
+CREATE TABLE users_db.users (
+  id serial PRIMARY KEY,
+  user_login varchar(64) NOT NULL UNIQUE,
+  email varchar(256) NOT NULL CHECK (email != ''),
+  user_password int NOT NULL CHECK (user_password > 9),
+  UNIQUE(user_login, email)
+);
 --
+-- DROP TABLE users_db.emplayees
+CREATE TABLE users_db.emplayees (
+  salary numeric(10, 2) NOT NULL,
+  department varchar(256) NOT NULL,
+  position varchar(256) NOT NULL,
+  hire_data date NOT NULL CHECK(hire_data <= current_date),
+  "name" varchar(256) NOT NULL
+);
 --
+ALTER TABLE users_db.users
+ADD UNIQUE (email);
+-- 
+ALTER TABLE users_db.users DROP user_password;
 --
+ALTER TABLE users_db.users
+ADD COLUMN "password_hash" text;
 --
+ALTER TABLE users_db.emplayees
+ADD COLUMN user_id int PRIMARY KEY REFERENCES users_db.users -- 
+ALTER TABLE users_db.emplayees DROP COLUMN "name" -- 
+  -- 
+SELECT u.*,
+  COALESCE(e.salary, 0) AS "salary"
+FROM users_db.users u
+  LEFT JOIN users_db.emplayees e ON e.user_id = u.id;
+-- 
 --
+SELECT *
+FROM users_db.users u
+WHERE u.id NOT IN (
+    SELECT user_id
+    FROM users_db.emplayees
+  );
