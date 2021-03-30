@@ -234,3 +234,151 @@ FROM (
 GROUP BY brend_and_model.brand;
 --
 --
+SELECT *,
+  (
+    CASE
+      WHEN extract(
+        year
+        from age("birthday")
+      ) < 30 THEN 'not adult'
+      WHEN extract(
+        year
+        from age("birthday")
+      ) >= 30 THEN 'adult'
+    END
+  ) AS "status"
+FROM users;
+-- 
+-- 
+SELECT *,
+  (
+    CASE
+      WHEN "brand" ILIKE 'iPhone' THEN 'APPLE'
+      ELSE 'OTHERS'
+    END
+  ) AS "manufacturer"
+FROM phones;
+-- 
+-- 
+SELECT *,
+  (
+    CASE
+      WHEN "brand" ILIKE 'samsung' THEN 'SAMSUNG'
+      ELSE 'OTHERS'
+    END
+  ) AS "manufacturer"
+FROM phones;
+-- 
+-- 
+SELECT *,
+  (
+    CASE
+      WHEN "price" < 10000 THEN 'min'
+      WHEN "price" > 20000 THEN 'max'
+      ELSE 'middle'
+    END
+  ) AS "price_phones"
+FROM phones;
+-- 
+-- 
+SELECT *,
+  (
+    CASE
+      WHEN "price" > (
+        SELECT avg(price)
+        FROM phones
+      ) THEN 'max_price'
+      ELSE 'low_price'
+    END
+  ) AS "price_phones"
+FROM phones;
+-- 
+-- 
+SELECT "userId",
+  "email",
+  (
+    CASE
+      WHEN count(orders.id) > 4 THEN 'constant'
+      WHEN count(orders.id) > 2 THEN 'active'
+      ELSE 'buyer'
+    END
+  ) AS "status"
+FROM orders
+  JOIN users ON users.id = orders."userId"
+GROUP BY "userId",
+  "email";
+-- 
+-- 
+SELECT *
+FROM users
+WHERE users.id NOT IN (
+    SELECT "userId"
+    FROM orders
+  );
+-- 
+--
+SELECT *
+FROM phones
+WHERE price > (
+    SELECT max(price)
+    FROM phones
+    WHERE brand ILIKE 'iPhone'
+  );
+-- 
+--
+CREATE VIEW "users_with_orders_amount" AS (
+  SELECT users.*,
+    count(orders.id) AS "order_amount"
+  FROM users
+    JOIN orders ON users.id = orders."userId"
+  GROUP BY users.id,
+    email
+);
+--
+SELECT *
+FROM "users_with_orders_amount"
+WHERE "order_amount" > 3;
+--
+--
+CREATE VIEW "order_with_price" AS (
+  SELECT o."userId",
+    o.id,
+    sum(p.price * pto.quantity)
+  FROM orders o
+    JOIN phones_to_orders pto ON o.id = pto."orderId"
+    JOIN phones p ON p.id = pto."phoneId"
+  GROUP BY o.id
+);
+--
+--
+CREATE VIEW "spam_list" AS (
+  SELECT owc.*,
+    u.email,
+    u.birthday
+  FROM "order_with_price" owc
+    JOIN users u ON u.id = owc."userId"
+);
+--
+--
+CREATE VIEW "users_list" AS (
+  SELECT concat("firstName", ' ', "lastName"),
+    extract(
+      year
+      from age("birthday")
+    ) AS "age",
+    (
+      CASE
+        WHEN "isMale" = true THEN 'male'
+        WHEN "isMale" = false THEN 'female'
+        ELSE 'other'
+      END
+    ) AS "gender"
+  FROM users
+);
+--
+--
+--
+--
+--
+--
+--
